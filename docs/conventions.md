@@ -57,6 +57,7 @@ Kesin patch sürümleri walking skeleton'da lockfile + `engines` + `.nvmrc` ile 
 - SQLite'ta foreign key'ler varsayılan olarak kapalı — her bağlantıda `PRAGMA foreign_keys = ON` — from bootstrap.
 - `toLocaleDateString()` ortamın locale'ine bağlı — tarih biçimlendirme tek yardımcıdan, `tr-TR` sabit — from bootstrap.
 - better-sqlite3 senkron; Drizzle `db.transaction` içinde `await` transaction'ı sessizce bozar — onay + bakiye düşümü tek, senkron transaction — from bootstrap.
+- macOS'ta `/bin/sh` bash 3.2'dir ve ANEW scriptlerini (`./scripts/check`, `doctor`, `residue`) parse edemez (`syntax error near unexpected token ';;'`) — macOS'ta `dash scripts/<ad>` ile çalıştır; Linux/CI etkilenmez; ANEW upstream'e bildirildi — from bootstrap.
 
 ## Enforced by tooling
 Walking skeleton kurar; kurulana kadar review'da denetlenir.
