@@ -61,7 +61,10 @@ describe('fetchHealth', () => {
   });
 
   it('rejects on a response that breaks the shared contract', async () => {
-    vi.stubGlobal('fetch', vi.fn(() => Promise.resolve(Response.json({ status: 'maybe' }))));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.resolve(Response.json({ status: 'maybe' }))),
+    );
 
     await expect(fetchHealth()).rejects.toThrow();
   });

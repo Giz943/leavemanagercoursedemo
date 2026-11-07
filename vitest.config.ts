@@ -11,7 +11,13 @@ export default defineConfig({
     watch: false,
     projects: [
       { test: { name: 'api', environment: 'node', include: ['apps/api/src/**/*.test.ts'] } },
-      { test: { name: 'shared', environment: 'node', include: ['packages/shared/src/**/*.test.ts'] } },
+      {
+        test: {
+          name: 'shared',
+          environment: 'node',
+          include: ['packages/shared/src/**/*.test.ts'],
+        },
+      },
       { test: { name: 'tooling', environment: 'node', include: ['tooling/**/*.test.ts'] } },
       {
         plugins: [react()],

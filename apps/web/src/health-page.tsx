@@ -3,9 +3,7 @@ import type { HealthResponse } from '@leave/shared';
 import { fetchHealth } from './api-client.ts';
 
 type ViewState =
-  | { kind: 'loading' }
-  | { kind: 'success'; health: HealthResponse }
-  | { kind: 'error' };
+  { kind: 'loading' } | { kind: 'success'; health: HealthResponse } | { kind: 'error' };
 
 export interface HealthPageProps {
   loadHealth?: () => Promise<HealthResponse>;
@@ -37,9 +35,13 @@ export function HealthPage({ loadHealth = fetchHealth }: HealthPageProps) {
         {state.kind === 'error' && <p>Sistem durumuna ulaşılamadı</p>}
         {state.kind === 'success' && (
           <>
-            <p>{state.health.status === 'ok' ? 'Sistem çalışıyor' : 'Sistem durumuna ulaşılamadı'}</p>
             <p>
-              {state.health.database === 'connected' ? 'Veritabanı: bağlı' : 'Veritabanı: bağlı değil'}
+              {state.health.status === 'ok' ? 'Sistem çalışıyor' : 'Sistem durumuna ulaşılamadı'}
+            </p>
+            <p>
+              {state.health.database === 'connected'
+                ? 'Veritabanı: bağlı'
+                : 'Veritabanı: bağlı değil'}
             </p>
           </>
         )}

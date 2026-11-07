@@ -23,7 +23,15 @@ describe('isCalendarDate', () => {
   });
 
   it('rejects malformed values', () => {
-    for (const value of ['', '2026-3-15', '15-03-2026', '2026/03/15', '2026-03-15T00:00', ' 2026-03-15', 'abcd-ef-gh']) {
+    for (const value of [
+      '',
+      '2026-3-15',
+      '15-03-2026',
+      '2026/03/15',
+      '2026-03-15T00:00',
+      ' 2026-03-15',
+      'abcd-ef-gh',
+    ]) {
       expect(isCalendarDate(value), value).toBe(false);
     }
   });
