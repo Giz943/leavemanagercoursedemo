@@ -26,6 +26,8 @@ export default defineConfig({
     ],
     coverage: {
       provider: 'v8',
+      // resource hygiene: summary to stdout only, no report files left on disk
+      reporter: ['text-summary'],
       include: ['apps/api/src/domain/**/*.ts'],
       exclude: ['**/*.test.ts'],
       thresholds: { lines: 90, branches: 90 },

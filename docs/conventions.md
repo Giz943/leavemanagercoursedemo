@@ -15,13 +15,14 @@
   paths and protocol fields verbatim.
 
 ## Language & framework versions
-Kesin patch sürümleri walking skeleton'da lockfile + `engines` + `.nvmrc` ile sabitlenir.
-- TypeScript 5.x, `strict: true` (ek olarak `noUncheckedIndexedAccess`).
-- Node.js 24 LTS (`.nvmrc`, `package.json` `engines`); paket yöneticisi npm (workspaces), kurulum `npm ci`.
-- Backend: Hono 4.x · Drizzle ORM + better-sqlite3 (SQLite) · zod.
-- Frontend: React 19 · Vite 6+.
-- Test: Vitest 3.x · React Testing Library · jsdom.
-- Lint/format: ESLint (flat config, typescript-eslint) · Prettier.
+Sürümler `package-lock.json` ile sabittir; kurulum `npm ci`. Spec 0001'de güncellendi (plan 0001, Risk 1–2).
+- Node.js **26 LTS** (`.nvmrc`, `package.json` `engines` `>=26 <27`); npm 12 (workspaces).
+- TypeScript **5.9.x**, `strict` + `noUncheckedIndexedAccess`; typescript-eslint yalnızca `<6.1` destekler — TypeScript 7'ye geçiş ayrı ADR.
+- Backend: Hono 4 · @hono/node-server 2 · Drizzle ORM 0.45 + better-sqlite3 13 · zod 4.
+- Frontend: React 19 · Vite 8.
+- Test: Vitest 5 (+ @vitest/coverage-v8) · React Testing Library 16 · jsdom.
+- Lint/format: ESLint 10 (flat config) + typescript-eslint 8 + eslint-plugin-react-hooks · Prettier 3.
+- API, Node'un yerleşik TypeScript tip silme özelliğiyle çalışır (derleme adımı yok); importlar `.ts` uzantılıdır.
 
 ## Naming
 - Kod tanımlayıcıları İngilizce; Türkçe ↔ İngilizce terim eşlemesi `docs/domain.md` sözlüğündedir.

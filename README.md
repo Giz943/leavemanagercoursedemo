@@ -1,3 +1,17 @@
+# İzin Yöneticisi (kurs demosu)
+
+> **Üretim için değildir.** ANEW iş akışını gösteren bir eğitim projesidir. Proje kuralları: `AGENTS.md`.
+
+## Yerelde çalıştırma
+- Gereken: Node.js 26 (`.nvmrc`).
+- Kurulum: `npm ci`
+- Geliştirme: `npm run dev` → API `http://localhost:3000`, arayüz `http://localhost:5173`
+  (ayarlar için `.env.example` → `.env`). Durdurmak için `Ctrl+C`.
+- Doğrulama: `./scripts/check` (hızlı: `--fast`). macOS'ta `dash scripts/check`
+  (`docs/conventions.md`, Known traps).
+
+---
+
 # ANEW — AI Native Engineering Workspace
 
 **A general-purpose, technology-agnostic bootstrap for building software with AI — under control.**
