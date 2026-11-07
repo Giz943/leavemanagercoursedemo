@@ -12,7 +12,7 @@
 ## Input & output
 - Tüm dış girdi (body, query, params, çerez) `apps/api/src/http` sınırında zod şemalarıyla (`packages/shared`) doğrulanır; geçersiz girdi 400.
 - SQL yalnızca Drizzle'ın parametreli sorgularıyla; string birleştirerek SQL yazmak yasak.
-- Arayüzde React'in varsayılan kaçışı; `dangerouslySetInnerHTML` yasak (ESLint `react/no-danger`).
+- Arayüzde React'in varsayılan kaçışı; `dangerouslySetInnerHTML` yasak (ESLint `no-restricted-syntax`).
 - Hata yanıtlarında stack trace, SQL, dosya yolu veya iç detay dönmez (`docs/conventions.md` Error handling).
 
 ## AuthN / AuthZ

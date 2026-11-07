@@ -62,6 +62,6 @@ Kesin patch sürümleri walking skeleton'da lockfile + `engines` + `.nvmrc` ile 
 ## Enforced by tooling
 Walking skeleton kurar; kurulana kadar review'da denetlenir.
 - `tsc --noEmit` (strict): tip hataları.
-- ESLint: `no-restricted-imports` ile mimari yasak bağımlılıklar (`docs/architecture.md`), `no-explicit-any`, `react-hooks`, `dangerouslySetInnerHTML` yasağı (`react/no-danger`).
+- ESLint: `no-restricted-imports` ile mimari yasak bağımlılıklar (`docs/architecture.md`), `no-explicit-any`, `react-hooks`, `dangerouslySetInnerHTML` yasağı (`no-restricted-syntax`).
 - Prettier `--check`: biçim.
 - Vitest coverage: `apps/api/src/domain` için %90 satır ve dal eşiği.
