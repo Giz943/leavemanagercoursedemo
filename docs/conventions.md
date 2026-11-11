@@ -80,6 +80,8 @@ Sürümler `package-lock.json` ile sabittir; kurulum `npm ci`. Spec 0001'de gün
 
 - Claude Code proje kökünden (`leavemanagercoursedemo/`) başlatılmazsa `.claude/` (reviewer ajanı, komutlar, `settings.json` yasakları ve `specs/done/` koruma hook'u) yüklenmez — oturumu her zaman proje kökünde aç; hook `$CLAUDE_PROJECT_DIR`'e bağlı olduğu için üst klasöre sembolik link çözüm değildir — from spec 0001 review, 2026-11-11.
 
+- macOS'ta `scripts/residue`: (a) check'i PATH'teki `sh` ile çağırır — `sh`→`dash` linkli geçici bir dizini PATH'in başına koyarak çalıştır; (b) ebeveyni launchd (pid 1) veya Claude olan OS/ajan süreçlerini (`mdworker_shared`, `caffeinate`, `helpd`…) check'in sayar (sahte pozitif) — repoyu Spotlight Arama Gizliliği'ne ekle, kalanların ebeveynini incele; ANEW upstream'e bildirilecek — from spec 0001 review, 2026-11-11 (plan 0001 A-3).
+
 ## Enforced by tooling
 Walking skeleton kurar; kurulana kadar review'da denetlenir.
 - `tsc --noEmit` (strict): tip hataları.
