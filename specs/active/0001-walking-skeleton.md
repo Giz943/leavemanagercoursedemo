@@ -6,11 +6,11 @@
 - Self-critique: done
 
 ## Intent
-Geliştirici (ve kurs katılımcısı), İzin Yöneticisi'nin iş özelliklerine başlamadan önce uçtan uca
+Geliştirici (ve kurs katılımcısı), Uçuş Rezervasyon'un iş özelliklerine başlamadan önce uçtan uca
 çalışan, en küçük bir iskelet istiyor: arayüzden API'ye istek gider, cevap ekranda görünür ve tek
 bir komut (`scripts/check`) projenin sağlıklı olduğunu kanıtlar. Başarı: bootstrap'ta kararlaştırılan
 toolchain kurulmuş, mimari sınırlar araçla zorlanıyor, her test katmanından bir örnek çalışıyor ve
-`check.conf` adımları etkin. Bilinçli olarak YAPILMAYAN: hiçbir izin iş kuralı, veritabanı tablosu
+`check.conf` adımları etkin. Bilinçli olarak YAPILMAYAN: hiçbir rezervasyon iş kuralı, veritabanı tablosu
 olan bir domain modeli, oturum/kimlik doğrulama, tasarım/stil çalışması.
 
 ## Requirements
@@ -36,7 +36,7 @@ olan bir domain modeli, oturum/kimlik doğrulama, tasarım/stil çalışması.
   - Boş durum ve yetkisiz durum yoktur (veri listesi ve oturum yok).
 - Design reference: none — the flow above is the design.
 - Accessibility: durum metni `role="status"` (canlı bölge) içinde okunur; sayfanın bir `<h1>` başlığı
-  ("İzin Yöneticisi") vardır; klavye ile etkileşim gerektiren öğe yoktur. Uygulama dili `lang="tr"`.
+  ("Uçuş Rezervasyon") vardır; klavye ile etkileşim gerektiren öğe yoktur. Uygulama dili `lang="tr"`.
 
 ## Constraints & out of scope
 - Stack ve sürümler `docs/conventions.md`'de sabittir: Node 24 LTS, TypeScript strict, Hono, SQLite +
@@ -44,11 +44,13 @@ olan bir domain modeli, oturum/kimlik doğrulama, tasarım/stil çalışması.
 - Veritabanı erişimi gerçek bir SQLite bağlantısıyla doğrulanır (örn. basit bir sorgu); iş tablosu yok.
 - Domain birim testi örneği, ileride kullanılacak saf bir yardımcıyı (takvim günü `YYYY-MM-DD`
   doğrulaması) kanıtlar — iş kuralı içermez.
-- Kapsam dışı: izin talepleri, bakiye, kullanıcılar, oturum, stil/tasarım sistemi, e2e testleri,
+- Kapsam dışı: uçuşlar, rezervasyonlar, koltuk tahsisi, ops anahtarı, PNR erişimi, stil/tasarım sistemi, e2e testleri,
   üretim dağıtımı, Docker.
 - Domain katmanı için %90 satır + dal coverage eşiği (`docs/testing.md`) bu spec'ten itibaren
   zorlanır; AC-8'in "yeşil" şartının parçasıdır.
-- Not a sensitive area (izin bakiyesi veya onay yetkisine dokunmaz).
+- Not a sensitive area (koltuk tahsisi, zaman pencereleri veya yetkiye dokunmaz).
+- Revizyon (2026-11-11): domain İzin Yöneticisi'nden Uçuş Rezervasyon'a değişti; yalnızca ürün adı
+  (h1/title) ve kapsam dışı metni güncellendi, kriterler aynı.
 - Split: değerlendirildi, tek kullanıcı yeteneği (sistem durumu) — bölünmedi.
 
 ## Acceptance criteria

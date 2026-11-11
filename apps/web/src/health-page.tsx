@@ -29,7 +29,7 @@ export function HealthPage({ loadHealth = fetchHealth }: HealthPageProps) {
 
   return (
     <main>
-      <h1>İzin Yöneticisi</h1>
+      <h1>Uçuş Rezervasyon</h1>
       <div role="status">
         {state.kind === 'loading' && <p>Sistem durumu kontrol ediliyor…</p>}
         {state.kind === 'error' && <p>Sistem durumuna ulaşılamadı</p>}

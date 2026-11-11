@@ -15,7 +15,7 @@ describe('HealthPage', () => {
 
     render(<HealthPage loadHealth={() => pending} />);
 
-    expect(screen.getByRole('heading', { level: 1, name: 'İzin Yöneticisi' })).toBeDefined();
+    expect(screen.getByRole('heading', { level: 1, name: 'Uçuş Rezervasyon' })).toBeDefined();
     expect(screen.getByRole('status').textContent).toBe('Sistem durumu kontrol ediliyor…');
   });
 

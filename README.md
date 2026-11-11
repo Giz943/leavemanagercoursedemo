@@ -1,4 +1,4 @@
-# İzin Yöneticisi (kurs demosu)
+# Uçuş Rezervasyon (kurs demosu)
 
 > **Üretim için değildir.** ANEW iş akışını gösteren bir eğitim projesidir. Proje kuralları: `AGENTS.md`.
 
