@@ -5,12 +5,16 @@ export interface DatabaseProbe {
   ping(): void;
 }
 
-export function getHealth(database: DatabaseProbe): HealthResponse {
+/** Server-side error sink; what it receives never reaches the HTTP response. */
+export type ErrorLogger = (error: unknown) => void;
+
+export function getHealth(database: DatabaseProbe, logError: ErrorLogger): HealthResponse {
   try {
     database.ping();
     return { status: 'ok', database: 'connected' };
-  } catch {
-    // Details stay on the server side; the caller only learns that the database is unreachable.
+  } catch (error) {
+    // Details go to the server log only; the caller learns just that the database is unreachable.
+    logError(error);
     return { status: 'unavailable', database: 'disconnected' };
   }
 }

@@ -47,6 +47,25 @@ describe('GET /api/health', () => {
     expect(text).not.toMatch(INTERNALS);
   });
 
+  it('logs the probe failure on the server without exposing it', async () => {
+    const failure = new Error('SQLITE_CANTOPEN: unable to open database file');
+    const logged: unknown[] = [];
+    const app = createApp({
+      database: {
+        ping: () => {
+          throw failure;
+        },
+      },
+      logError: (error) => logged.push(error),
+    });
+
+    const response = await app.request(HEALTH_PATH);
+
+    expect(response.status).toBe(503);
+    expect(logged).toEqual([failure]);
+    expect(await response.text()).not.toMatch(INTERNALS);
+  });
+
   it('returns 503 when the database connection has been closed', async () => {
     const database = createDatabase(':memory:');
     database.close();
