@@ -78,6 +78,8 @@ Sürümler `package-lock.json` ile sabittir; kurulum `npm ci`. Spec 0001'de gün
 - Aktif koltuk benzersizliği SQLite **kısmi** index'idir (`UNIQUE (flight_id, seat) WHERE status = 'CONFIRMED'`); düz unique index iptal edilen koltuğun yeniden satışını engeller — Drizzle şemasında `.where(...)` ile açıkça tanımla — from domain switch 2026-11-11.
 - Sınır karşılaştırmaları bilerek farklıdır: satış `now < kalkış − 1s` (strict), iptal `now ≤ kalkış − 24s` (dahil) — `<`/`<=` karıştırma, her biri sınır testiyle sabit — from domain switch 2026-11-11.
 
+- Claude Code proje kökünden (`leavemanagercoursedemo/`) başlatılmazsa `.claude/` (reviewer ajanı, komutlar, `settings.json` yasakları ve `specs/done/` koruma hook'u) yüklenmez — oturumu her zaman proje kökünde aç; hook `$CLAUDE_PROJECT_DIR`'e bağlı olduğu için üst klasöre sembolik link çözüm değildir — from spec 0001 review, 2026-11-11.
+
 ## Enforced by tooling
 Walking skeleton kurar; kurulana kadar review'da denetlenir.
 - `tsc --noEmit` (strict): tip hataları.

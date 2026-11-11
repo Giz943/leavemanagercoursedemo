@@ -39,7 +39,7 @@ olan bir domain modeli, oturum/kimlik doğrulama, tasarım/stil çalışması.
   ("Uçuş Rezervasyon") vardır; klavye ile etkileşim gerektiren öğe yoktur. Uygulama dili `lang="tr"`.
 
 ## Constraints & out of scope
-- Stack ve sürümler `docs/conventions.md`'de sabittir: Node 24 LTS, TypeScript strict, Hono, SQLite +
+- Stack ve sürümler `docs/conventions.md`'de sabittir: Node 26 LTS (plan 0001, Risk 1), TypeScript strict, Hono, SQLite +
   Drizzle, React + Vite, Vitest, ESLint, Prettier.
 - Veritabanı erişimi gerçek bir SQLite bağlantısıyla doğrulanır (örn. basit bir sorgu); iş tablosu yok.
 - Domain birim testi örneği, ileride kullanılacak saf bir yardımcıyı (takvim günü `YYYY-MM-DD`
@@ -51,6 +51,7 @@ olan bir domain modeli, oturum/kimlik doğrulama, tasarım/stil çalışması.
 - Not a sensitive area (koltuk tahsisi, zaman pencereleri veya yetkiye dokunmaz).
 - Revizyon (2026-11-11): domain İzin Yöneticisi'nden Uçuş Rezervasyon'a değişti; yalnızca ürün adı
   (h1/title) ve kapsam dışı metni güncellendi, kriterler aynı.
+- Revizyon (2026-11-11, review round 1 L-4): Node sürümü satırı plan 0001 Risk 1 kararına (Node 26) eşitlendi.
 - Split: değerlendirildi, tek kullanıcı yeteneği (sistem durumu) — bölünmedi.
 
 ## Acceptance criteria
