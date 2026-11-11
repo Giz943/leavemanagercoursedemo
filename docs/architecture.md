@@ -1,13 +1,13 @@
 # Architecture
 
-> Bootstrap'ta karara bağlandı (2026-11-07). Hedef değil, verilmiş karar. Ajanlar planlamadan önce bu dosyayı okur.
+> Bootstrap'ta karara bağlandı (2026-11-07; domain 2026-11-11'de Uçuş Rezervasyon'a değişti). Hedef değil, verilmiş karar. Ajanlar planlamadan önce bu dosyayı okur.
 
 ## System overview
-İzin Yöneticisi, npm workspaces ile kurulmuş bir **modüler monolittir**: tek bir HTTP API
+Uçuş Rezervasyon, npm workspaces ile kurulmuş bir **modüler monolittir**: tek bir HTTP API
 (`apps/api`, Hono), tek bir web arayüzü (`apps/web`, React + Vite) ve ikisinin paylaştığı API
 sözleşmesi (`packages/shared`). Backend hafif katmanlıdır: iş kuralları framework'süz, saf bir
 `domain` çekirdeğinde yaşar; use-case'ler `app`, kalıcılık `infra`, HTTP `http` katmanındadır.
-Gerekçe: hassas kurallar (bakiye, yetki) veritabanı/HTTP olmadan hızlı birim testleriyle
+Gerekçe: hassas kurallar (koltuk tahsisi, zaman pencereleri, yetki) veritabanı/HTTP olmadan hızlı birim testleriyle
 kanıtlanabilsin; kurs demosu için mikroservis veya tam hexagonal mimari gereğinden ağırdır.
 
 ```
@@ -18,11 +18,11 @@ apps/api/src/{domain,app,infra,http}   apps/web/src   packages/shared/src
 
 | Module | Single responsibility | Owns |
 |---|---|---|
-| `apps/api/src/domain` | Saf iş kuralları: iş günü hesabı, bakiye, çakışma, durum geçişleri, yetki kararları | İzin talebi/bakiye kavramları ve invariant'ları; repository arayüzleri |
-| `apps/api/src/app` | Use-case'ler: talep oluştur, onayla, reddet, iptal et, listele | İşlem sınırları (transaction), use-case sırası |
-| `apps/api/src/infra` | Drizzle şeması, migration'lar, repository uygulamaları, SQLite bağlantısı | Veritabanı ve tablo yapısı |
-| `apps/api/src/http` | Hono route'ları, zod ile girdi doğrulama, oturum, hata→HTTP eşlemesi | HTTP sözleşmesinin sunucu tarafı |
-| `apps/web` | Türkçe kullanıcı arayüzü (React) | Ekran durumu; iş kuralı içermez |
+| `apps/api/src/domain` | Saf iş kuralları: koltuk tahsisi, satış/iptal pencereleri, durum geçişleri, soyadı eşleştirme, yetki kararları | Uçuş/rezervasyon kavramları ve invariant'ları; repository, saat ve PNR üretici arayüzleri |
+| `apps/api/src/app` | Use-case'ler: uçuş ara, koltuk haritası, rezervasyon yap, PNR ile bul, yolcu iptali; ops: uçuş tanımla, uçuş iptal et, yolcu listesi | İşlem sınırları (transaction), use-case sırası |
+| `apps/api/src/infra` | Drizzle şeması (aktif koltuk için kısmi benzersiz index dahil), migration'lar, repository uygulamaları, SQLite bağlantısı | Veritabanı ve tablo yapısı |
+| `apps/api/src/http` | Hono route'ları, zod ile girdi doğrulama, ops anahtarı kontrolü, PNR deneme rate limit'i, hata→HTTP eşlemesi | HTTP sözleşmesinin sunucu tarafı |
+| `apps/web` | Yolcu için Türkçe kullanıcı arayüzü (React); Operasyon arayüzü yok | Ekran durumu; iş kuralı içermez |
 | `packages/shared` | API sözleşmesi: istek/yanıt tipleri, zod şemaları, hata kodları | Kablo üzerindeki veri biçimi |
 
 ## Communication rules
@@ -40,5 +40,6 @@ ESLint `no-restricted-imports` ile `scripts/check` içinde zorlanır (walking sk
 5. Veritabanına (Drizzle, better-sqlite3) yalnızca `infra` erişir.
 
 ## Deliberately out of scope
-Bordro entegrasyonu · çoklu şirket/kiracı · mobil uygulama · e-posta/SMS bildirimleri ·
-kıdeme göre izin hakkı ve devreden izin · yarım gün izin · gerçek kimlik doğrulama (parola/SSO).
+Ödeme ve fiyatlandırma · aktarmalı/çok bacaklı uçuşlar · dış hat ve çoklu saat dilimi · kabin sınıfları ·
+koltuk değişikliği · check-in ve bagaj · e-posta/SMS bildirimleri · yolcu hesabı ve gerçek kimlik
+doğrulama (parola/SSO) · Operasyon web arayüzü · mobil uygulama · çoklu havayolu/kiracı.

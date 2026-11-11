@@ -1,9 +1,9 @@
 # AGENTS.md — Project Rules
 
-**İzin Yöneticisi (kurs demosu):** çalışan izin talep eder, yöneticisi onaylar/reddeder, sistem
-yıllık izin bakiyesini iş günü üzerinden tutar. Amaç: ANEW iş akışını küçük ama gerçek bir projede
-göstermek. Stack: TypeScript · Node 24 · Hono · SQLite/Drizzle · React/Vite · Vitest (greenfield —
-ilk spec walking skeleton). Hassas alanlar: bakiye hesabı, onay yetkisi (`docs/domain.md`).
+**Uçuş Rezervasyon (kurs demosu):** yolcu iç hat uçuşunda koltuk seçip rezervasyon yapar, PNR + soyadı
+ile bulur/iptal eder; Operasyon API ile uçuş tanımlar/iptal eder. Amaç: ANEW akışını küçük ama gerçek
+bir projede göstermek. Stack: TypeScript · Node 26 · Hono · SQLite/Drizzle · React/Vite · Vitest ·
+Playwright. Hassas alanlar: koltuk tahsisi, zaman pencereleri, yetki (`docs/domain.md`).
 
 ## Operating mode
 

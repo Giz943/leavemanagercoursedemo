@@ -1,13 +1,14 @@
 # Security
 
-> Bootstrap'ta karara bağlandı (2026-11-07). Her plan ve review'da uyulması gereken taban kurallar.
-> Duruş: **demo seviyesinde kimlik doğrulama, gerçek seviyede yetkilendirme.**
+> Bootstrap'ta karara bağlandı (2026-11-07; domain 2026-11-11'de Uçuş Rezervasyon'a değişti). Her plan ve review'da uyulması gereken taban kurallar.
+> Duruş: **hesapsız yolcu erişimi (PNR + soyadı) ve anahtarlı operasyon erişimi; yetkilendirme gerçek seviyede.**
 
 ## Secrets
 - Secrets never enter the repo, specs, prompts, or chat. `.env` is gitignored; provide `.env.example`.
 - Agents never print secret values, even when debugging.
-- Oturum çerezi imzalama anahtarı (`SESSION_SECRET`) `.env`'den okunur; `.env.example` yalnızca değişken adını ve sahte bir değer içerir.
-- Gerçek kişisel veri yoktur; seed verisi kurgusaldır.
+- Operasyon API anahtarı (`OPS_API_KEY`) `.env`'den okunur; `.env.example` yalnızca değişken adını ve sahte bir değer içerir. Anahtar en az 32 karakterdir; eksik veya kısaysa sunucu başlamayı reddeder.
+- Gerçek kişisel veri yoktur; seed verisi (yolcu adları, e-postalar) kurgusaldır.
+- Yolcu e-postası, soyadı, PNR ve `X-Ops-Key` header'ı loglara yazılmaz.
 
 ## Input & output
 - Tüm dış girdi (body, query, params, çerez) `apps/api/src/http` sınırında zod şemalarıyla (`packages/shared`) doğrulanır; geçersiz girdi 400.
@@ -16,16 +17,31 @@
 - Hata yanıtlarında stack trace, SQL, dosya yolu veya iç detay dönmez (`docs/conventions.md` Error handling).
 
 ## AuthN / AuthZ
-**Kimlik doğrulama (demo):** gerçek parola/SSO yok. Seed edilmiş kullanıcılardan biri seçilir
-("demo girişi"); sunucu imzalı, `httpOnly`, `SameSite=Lax` bir oturum çerezi verir. README ve
-arayüzde **"Üretim için değildir"** notu bulunur. Gerçek kimlik doğrulama gerekirse ADR ile eklenir.
+**Yolcu (hesapsız):** yolcu hesabı ve oturumu yoktur. Uçuş arama ve rezervasyon yapma anonimdir.
+Mevcut bir rezervasyona erişim (görme, iptal) yalnızca **PNR + soyadı** ile olur ve her istekte
+yeniden doğrulanır.
+- PNR, karışık karakterleri çıkarılmış büyük harf alfabesinden (`ABCDEFGHJKLMNPQRSTUVWXYZ23456789`,
+  32 karakter) 6 karakter olarak **kriptografik rastgele** (`node:crypto`) üretilir; `Math.random` yasak.
+  Üretici enjekte edilir (testlerde deterministik).
+- Yanlış PNR ile doğru PNR + yanlış soyadı **birebir aynı yanıtı** alır: 404 `BOOKING_NOT_FOUND`,
+  aynı gövde. Hangisinin yanlış olduğu sızdırılmaz.
+- **Rate limit:** IP başına 15 dakikalık pencerede 5 başarısız PNR denemesi; 6. denemede 429
+  `TOO_MANY_ATTEMPTS`. Sayaç bellek içidir (tek süreç), saat servisiyle çalışır, pencere dolunca sıfırlanır.
+- Soyadı karşılaştırması `docs/domain.md` BR-8'e göredir.
+
+**Operasyon (API anahtarı):** `/ops/*` uçları yalnızca `X-Ops-Key` header'ı `OPS_API_KEY` ile
+eşleşince çalışır. Karşılaştırma `crypto.timingSafeEqual` ile sabit zamanlıdır. Header yoksa veya
+yanlışsa aynı yanıt: 401. Operasyon'un web arayüzü yoktur; kullanım README'de curl örnekleriyle.
+README'de **"Üretim için değildir"** notu bulunur; gerçek kimlik doğrulama gerekirse ADR ile eklenir.
 
 **Yetkilendirme (hassas alan, `docs/domain.md`):**
-- Varsayılan red: oturumu olmayan istek 401; her endpoint yetkisini açıkça kontrol eder.
-- Yetki kararları **yalnızca sunucuda**, `domain`/`app` katmanında verilir; arayüzde bir butonu gizlemek yetki sayılmaz.
-- Çalışan yalnızca **kendi** taleplerini ve bakiyesini görür, oluşturur ve iptal eder.
-- Yönetici yalnızca **kendi ekibinin** taleplerini görür ve karara bağlar; **kendi talebini** karara bağlayamaz (BR-6).
-- Her yetki kuralının bir negatif testi vardır (403) — `docs/testing.md`.
+- Varsayılan red: her endpoint yetkisini açıkça kontrol eder; herkese açık uçlar (sağlık, uçuş arama,
+  koltuk haritası, rezervasyon yapma) route tanımında açıkça "public" işaretlenir.
+- Yetki kararları **yalnızca sunucuda** verilir; arayüzde bir butonu gizlemek yetki sayılmaz.
+- Yolcu yalnızca PNR + soyadı eşleşen rezervasyonu görür ve iptal eder (BR-6).
+- Yolcu listesi (ad, e-posta) yalnızca Operasyon'a döner; herkese açık koltuk haritası yalnızca
+  koltuğun dolu/boş olduğunu gösterir, yolcu bilgisi içermez.
+- Her yetki kuralının bir negatif testi vardır (401/404/429) — `docs/testing.md`.
 
 ## Dependencies
 - Yeni runtime bağımlılığı, spec veya plan içinde gerekçesiyle **önerilir**, insan onaylar (plan onayı yeterli).
