@@ -19,6 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc   # check.conf requires Node 26 (plan 0001, Risk 1 · A-5)
       # The bootstrap workflow may add toolchain setup steps here (e.g. setup-java, setup-node)
       # to match the commands it writes into scripts/check.conf.
       # --fast is for the inner loop only; CI always runs the full contract (docs/testing.md).
