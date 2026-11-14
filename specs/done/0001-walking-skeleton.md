@@ -1,6 +1,6 @@
 # Spec 0001 — walking-skeleton
 
-- Status: In progress
+- Status: Shipped
 - Mode: lite
 - Plan: `specs/plans/0001-plan.md`
 - Self-critique: done
@@ -55,28 +55,28 @@ olan bir domain modeli, oturum/kimlik doğrulama, tasarım/stil çalışması.
 - Split: değerlendirildi, tek kullanıcı yeteneği (sistem durumu) — bölünmedi.
 
 ## Acceptance criteria
-- [ ] AC-1 — Sağlık sorgusu, servis ve veritabanı ayaktayken başarılı yanıt döner ve yanıt, servisin çalıştığını ve veritabanının bağlı olduğunu belirtir; yanıt paylaşılan sözleşmeye uyar.
-- [ ] AC-2 — Veritabanına ulaşılamadığında sağlık sorgusu başarısız (servis kullanılamaz) yanıtı döner ve yanıt veritabanının bağlı olmadığını belirtir; iç hata detayı (stack trace, SQL, dosya yolu) içermez.
-- [ ] AC-3 — Arayüz, sağlık yanıtı beklenirken "Sistem durumu kontrol ediliyor…" metnini bir durum bölgesinde (`role="status"`) gösterir.
-- [ ] AC-4 — Arayüz, başarılı yanıtta "Sistem çalışıyor" ve "Veritabanı: bağlı" metinlerini gösterir.
-- [ ] AC-5 — Arayüz, istek başarısız olduğunda (ağ hatası veya başarısız yanıt) "Sistem durumuna ulaşılamadı" metnini gösterir.
-- [ ] AC-6 — Takvim günü doğrulayıcısı geçerli bir `YYYY-MM-DD` değerini kabul eder; biçimsiz değerleri ve var olmayan tarihleri (örn. `2026-02-30`) reddeder; artık yılda `29 Şubat`'ı kabul eder.
-- [ ] AC-7 — `docs/architecture.md`'deki beş yasak bağımlılığın **her biri** için, o kuralı ihlal eden örnek bir import lint hatası üretir (kural başına bir test); gerçek kaynak kodda böyle bir import lint adımını kırmızıya çevirir.
-- [ ] AC-8 — `scripts/check` (tam) ve `scripts/check --fast` yeşil biter; fast profil API entegrasyon testlerini çalıştırmaz, tam profil çalıştırır; her iki profilde residue testi temizdir.
-- [ ] AC-9 — Geliştirici tek bir komutla API'yi ve arayüzü yerelde başlatır; tarayıcıda açılan sayfa sağlık durumunu ("Sistem çalışıyor", "Veritabanı: bağlı") gösterir.
+- [x] AC-1 — Sağlık sorgusu, servis ve veritabanı ayaktayken başarılı yanıt döner ve yanıt, servisin çalıştığını ve veritabanının bağlı olduğunu belirtir; yanıt paylaşılan sözleşmeye uyar.
+- [x] AC-2 — Veritabanına ulaşılamadığında sağlık sorgusu başarısız (servis kullanılamaz) yanıtı döner ve yanıt veritabanının bağlı olmadığını belirtir; iç hata detayı (stack trace, SQL, dosya yolu) içermez.
+- [x] AC-3 — Arayüz, sağlık yanıtı beklenirken "Sistem durumu kontrol ediliyor…" metnini bir durum bölgesinde (`role="status"`) gösterir.
+- [x] AC-4 — Arayüz, başarılı yanıtta "Sistem çalışıyor" ve "Veritabanı: bağlı" metinlerini gösterir.
+- [x] AC-5 — Arayüz, istek başarısız olduğunda (ağ hatası veya başarısız yanıt) "Sistem durumuna ulaşılamadı" metnini gösterir.
+- [x] AC-6 — Takvim günü doğrulayıcısı geçerli bir `YYYY-MM-DD` değerini kabul eder; biçimsiz değerleri ve var olmayan tarihleri (örn. `2026-02-30`) reddeder; artık yılda `29 Şubat`'ı kabul eder.
+- [x] AC-7 — `docs/architecture.md`'deki beş yasak bağımlılığın **her biri** için, o kuralı ihlal eden örnek bir import lint hatası üretir (kural başına bir test); gerçek kaynak kodda böyle bir import lint adımını kırmızıya çevirir.
+- [x] AC-8 — `scripts/check` (tam) ve `scripts/check --fast` yeşil biter; fast profil API entegrasyon testlerini çalıştırmaz, tam profil çalıştırır; her iki profilde residue testi temizdir.
+- [x] AC-9 — Geliştirici tek bir komutla API'yi ve arayüzü yerelde başlatır; tarayıcıda açılan sayfa sağlık durumunu ("Sistem çalışıyor", "Veritabanı: bağlı") gösterir.
 
 ## Definition of Done
-- [ ] Every acceptance criterion mapped to proof (test or reproducible observation)
-- [ ] `scripts/check` green
-- [ ] Independent review done; real findings fixed, noise rejected with written rationale, deferred ones in `specs/backlog.md`
-- [ ] Docs / ADRs updated if behavior or architecture changed
-- [ ] Spec moved to `specs/done/` (it becomes immutable there)
+- [x] Every acceptance criterion mapped to proof (test or reproducible observation)
+- [x] `scripts/check` green
+- [x] Independent review done; real findings fixed, noise rejected with written rationale, deferred ones in `specs/backlog.md`
+- [x] Docs / ADRs updated if behavior or architecture changed
+- [x] Spec moved to `specs/done/` (it becomes immutable there)
 
 ## Scorecard (fill at ship — honest numbers make the process improvable)
 | Metric | Value |
 |---|---|
-| Spec revisions | |
-| Fix rounds | |
-| Review findings: real / noise / deferred | |
-| Regressions introduced | |
-| Bugs escaped to production | |
+| Spec revisions | 2 (domain switch İzin Yöneticisi → Uçuş Rezervasyon; review round 1 L-4 Node 26) |
+| Fix rounds | 2 |
+| Review findings: real / noise / deferred | 8 / 1 / 3 (round 1: 5 / 1 / 3 · round 2: 3 / 0 / 0) |
+| Regressions introduced | 0 |
+| Bugs escaped to production | 0 (henüz üretim dağıtımı yok) |
