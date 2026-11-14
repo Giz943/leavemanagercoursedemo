@@ -1,6 +1,6 @@
 # Git
 
-> **Template — adjust at bootstrap.** Defaults below are safe; loosen consciously, not accidentally.
+> Bootstrap'ta karara bağlandı (2026-11-07): ANEW varsayılanları aynen korundu. Remote: `origin` (GitHub), varsayılan dal `main`.
 
 ## Branching
 - `feature/<spec-no>-<short-name>` — **no branch without a spec.** Also for CHANGE-lane mini-specs.
@@ -11,6 +11,7 @@
   any branch.
 
 ## Commits
+- Commit mesajları **İngilizce** (tip, scope ve açıklama), örn. `feat(leave): deduct balance on approval [plan 0002/3]`.
 - Conventional Commits, with a plan reference: `feat(catalog): paging endpoint [plan 0001/3]`.
   Review fixes name their fix round instead of the step:
   `fix(catalog): empty page size [plan 0001/fix-2]` — the reviewer counts rounds from these
@@ -31,12 +32,11 @@
 - Force push, history rewriting on shared branches. Undo = `git revert` (see recovery R-11).
 
 ## Trivial changes
-<!-- Set at bootstrap. Applies only to requests the change-request triage rubric
+<!-- Set at bootstrap (2026-11-07). Applies only to requests the change-request triage rubric
      (workflows/change-request.md) classifies as TRIVIAL: no acceptance criterion changes, no shared code. -->
-- Policy: **(1) PR + one reviewer, no spec** — default; alternatives: (2) direct commit allowed on a
-  `trivial/<short-name>` branch · (3) everything goes through a mini-spec (`specs/TEMPLATE-mini.md`;
-  no ANALYZE here: run the self-critique pass of `prompts/spec.md`, then `Self-critique: done`).
+- Policy: **(1) PR + one reviewer, no spec** — `trivial/<short-name>` dalı, PR'da bir onay.
 - Always: one narrow commit, `scripts/check` green. A second file or a new test means re-triage.
 
 ## Pull requests
 - PR template checklist completed; `scripts/check` green in CI; squash-merge.
+- GitHub'da `main` için branch protection önerilir (PR zorunlu, `check` status'ü zorunlu, force push kapalı) — repo sahibi ayarlar.

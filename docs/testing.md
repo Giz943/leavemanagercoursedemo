@@ -1,6 +1,6 @@
 # Testing
 
-> **Template — filled during bootstrap.**
+> Bootstrap'ta karara bağlandı (2026-11-07). Proje özel bölümler: "Frameworks & layout", "What must be tested"; geri kalanı ANEW sözleşmesidir.
 
 ## The contract
 - Every acceptance criterion maps to at least one test (criterion ↔ test map lives in the plan).
@@ -8,11 +8,28 @@
 - The whole suite runs inside `scripts/check` — one command, everywhere.
 
 ## Frameworks & layout
-<!-- Test framework(s), where tests live, naming pattern. -->
+| Katman | Neyi kanıtlar | Araç | Konum / ad | Profil |
+|---|---|---|---|---|
+| Domain birim | İş günü, bakiye, çakışma, durum geçişleri, yetki (tüm hassas kurallar) | Vitest | `apps/api/src/domain/**/*.test.ts` | `[fast]` |
+| Bileşen (UI) | Form doğrulama, hata kodu → Türkçe mesaj, durum rozetleri, onay/red butonlarının görünürlüğü, boş/yükleniyor/hata durumları | Vitest + React Testing Library (jsdom) | `apps/web/src/**/*.test.tsx` | `[fast]` |
+| API entegrasyon | Route → use-case → gerçek SQLite; HTTP kodları, kalıcılık, transaction | Vitest + Hono `app.request()`, test başına in-memory SQLite (`:memory:`) | `apps/api/src/**/*.int.test.ts` | full |
+| e2e | — (ilk sürümde yok) | — | — | — |
+
+- **Hızlı/tam ayrımı seçiciyle yapılır** (Two speeds kural 4): fast adımı `*.int.test.ts` dosyalarını hariç tutar, full adımı yalnızca onları çalıştırır — dosya listesiyle değil, ad desenine göre (`--exclude` / filtre), böylece yeni bir test her zaman iki profilden birinde çalışır.
+- **Determinizm (bu stack'te nasıl):** "bugün" domain'e ve use-case'lere parametre/saat servisi olarak verilir, testlerde sabit bir tarihtir; `Date.now()` doğrudan çağrılmaz. Vitest ortamında `TZ=UTC` ve locale `tr-TR` sabittir. ID üretici enjekte edilir, testlerde deterministiktir. Arayüzde animasyon/geçiş yoktur; eklenirse test ortamında kapatılır (`prefers-reduced-motion` + test bayrağı). Dış servis yoktur.
+- **İzolasyon:** her entegrasyon testi kendi in-memory veritabanını açar, migration uygular ve kapatır; diske dosya veya bir sonraki çalıştırmaya veri kalmaz (Resource hygiene kural 5).
+- **Coverage:** `apps/api/src/domain` için %90 satır + dal eşiği check'te zorlanır; diğer katmanlarda eşik yok.
+
+**Ekran görüntüsü kanıtı (Evidence for UI criteria):** VERIFY oturumu headless bir tarayıcıyla
+(araç walking skeleton'da seçilir) repo dışında geçici dizinde yakalar; repoya girmez.
 
 ## What must be tested
-<!-- e.g. every business rule (BR-n), every boundary/forbidden dependency; the e2e journeys and
-     budget, if the project has e2e at all (Test layers). -->
+- Her iş kuralı (`docs/domain.md` BR-1…BR-8) domain birim testleriyle; hassas kuralların her biri için **en az bir pozitif ve bir negatif** test.
+- Her yetki kuralı (`docs/security.md` AuthZ) için en az bir negatif API entegrasyon testi (403).
+- Her hata kodunun HTTP eşlemesi (400/401/403/404/409) entegrasyon testiyle.
+- Onay + bakiye düşümünün atomikliği (biri başarısızsa hiçbiri kalıcı olmaz) entegrasyon testiyle.
+- Mimari yasak bağımlılıklar ESLint ile (`docs/architecture.md`).
+- UI kabul kriterleri bileşen testleriyle; e2e yok. Bir kritik yolculuk yalnızca tarayıcıda kanıtlanabiliyorsa e2e bir spec ile, bütçesiyle birlikte eklenir.
 
 ## Test layers
 1. **The cheapest test that proves the criterion.** Unit first, then component or integration
