@@ -1,40 +1,44 @@
 # Domain
 
-> Bootstrap'ta karara bağlandı (2026-11-07). Ortak dil: iş, insanlar ve ajanlar aynı kelimeyi aynı anlamda kullanır.
+> Bootstrap'ta karara bağlandı (2026-11-07); domain 2026-11-11'de İzin Yöneticisi'nden **Uçuş
+> Rezervasyon**'a değiştirildi. Ortak dil: iş, insanlar ve ajanlar aynı kelimeyi aynı anlamda kullanır.
 
 ## Ubiquitous language
 
 | Term | Meaning | Notes / not to be confused with |
 |---|---|---|
-| Çalışan (`Employee`) | İzin talep eden kişi. Tam olarak bir yöneticisi vardır. | Yönetici de bir çalışandır. |
-| Yönetici (`Manager`) | Kendi ekibindeki çalışanların taleplerini onaylar/reddeder. | Rol, ayrı bir kişi türü değil; kendi talebi için o da çalışandır. |
-| İzin türü (`LeaveType`) | `ANNUAL` (yıllık), `EXCUSE` (mazeret), `UNPAID` (ücretsiz). | Bakiyeden yalnızca `ANNUAL` düşer. |
-| İzin talebi (`LeaveRequest`) | Başlangıç/bitiş tarihi (dahil), tür, açıklama ve durum. | Durumlar: `PENDING` (Beklemede) → `APPROVED` (Onaylandı) / `REJECTED` (Reddedildi) / `CANCELLED` (İptal edildi). |
-| Aktif talep | Durumu `PENDING` veya `APPROVED` olan talep. | Çakışma kuralı yalnızca aktif talepleri dikkate alır. |
-| İzin bakiyesi (`LeaveBalance`) | Çalışanın takvim yılı içinde kalan yıllık izin günü. | Hak (entitlement) − onaylı yıllık izin günleri. |
-| Yıllık hak (`Entitlement`) | Çalışan başına yıllık sabit gün sayısı (varsayılan 14). | Kıdeme göre hesap yok (kapsam dışı). |
-| İş günü (`Workday`) | Cumartesi, Pazar ve tanımlı resmî tatiller dışındaki takvim günü. | İzin süresi her zaman iş günü sayılır, takvim günü değil. |
-| Resmî tatil (`PublicHoliday`) | Sistemde tanımlı, iş günü sayılmayan tarih. | Liste veri olarak tutulur; kod içine gömülmez. |
+| Yolcu (`Passenger`) | Rezervasyon yapan kişi: ad, soyad, e-posta. Hesabı yoktur. | Kimliği rezervasyon üzerinden PNR + soyadı ile kanıtlanır (`docs/security.md`). |
+| Operasyon (`Operations`) | Uçuş tanımlayan, uçuş iptal eden ve yolcu listesini gören havayolu personeli. | Yalnızca API üzerinden çalışır (`X-Ops-Key`); web arayüzü yoktur. |
+| Havalimanı (`Airport`) | 3 harfli IATA kodu (`IST`, `ESB`, `ADB`…). | Yalnızca iç hat; hepsi `Europe/Istanbul` saat diliminde. |
+| Uçuş (`Flight`) | Uçuş no (`AB1234`), kalkış/varış havalimanı, kalkış/varış zaman anı, koltuk düzeni, durum. | Durumlar: `SCHEDULED` (Planlandı) → `CANCELLED` (İptal edildi). |
+| Koltuk düzeni (`SeatMap`) | Uçuştaki koltukların listesi: sıra (1–99) + harf (A–F), örn. `12C`. | Tek kabin sınıfı (ekonomi). Kapasite = koltuk sayısı. |
+| Rezervasyon (`Booking`) | Yolcu + uçuş + koltuk; 6 karakterlik **PNR** kodu ve durum. | Durumlar: `CONFIRMED` (Onaylı) → `CANCELLED` (Yolcu iptal etti) / `CANCELLED_BY_AIRLINE` (Havayolu iptal etti). |
+| Aktif rezervasyon | Durumu `CONFIRMED` olan rezervasyon. | Koltuk ve kapasite kuralları yalnızca aktif rezervasyonları sayar. |
+| PNR (`Pnr`) | Rezervasyonun yolcuya verilen 6 karakterlik kodu. | Tahmin edilemez olmalı; ID değildir (iç ID ayrıca UUID). |
+| Satış kapanışı | Kalkıştan 1 saat önce. | Sınır anında satış **kapalı** (BR-3). |
+| İptal penceresi | Kalkıştan 24 saat öncesine kadar. | Sınır anında iptal **açık** (BR-4). |
 
 ## Business rules
-- **BR-1:** İzin süresi iş günü olarak hesaplanır; hafta sonu ve tanımlı resmî tatiller sayılmaz. Başlangıç ve bitiş günleri dahildir.
-- **BR-2:** Yıllık izin (`ANNUAL`) talebinin gün sayısı, talep anındaki kalan bakiyeyi aşamaz.
-- **BR-3:** Bakiye talep anında değil, **onay anında** düşülür. Onaylanmış bir yıllık izin iptal edilirse günler bakiyeye iade edilir.
-- **BR-4:** Bir çalışanın tarih aralıkları çakışan iki aktif talebi olamaz.
-- **BR-5:** Geçmiş tarihli (başlangıcı bugünden önce) talep oluşturulamaz. Yalnızca henüz başlamamış (`PENDING` veya `APPROVED`) talep iptal edilebilir.
-- **BR-6:** Bir talebi yalnızca çalışanın yöneticisi karara bağlayabilir; yönetici **kendi talebini** onaylayamaz/reddedemez.
-- **BR-7:** Yıllık hak sabittir (varsayılan 14 iş günü). Kıdeme göre hak ve devreden izin bu sürümde yoktur.
-- **BR-8:** Bitiş tarihi başlangıç tarihinden önce olamaz; 0 iş günü süren talep (örneğin yalnızca hafta sonu) oluşturulamaz.
+- **BR-1:** Bir uçuşta bir koltuğun en fazla bir aktif rezervasyonu olur (çift satış yok).
+- **BR-2:** Bir uçuşun aktif rezervasyon sayısı koltuk sayısını aşamaz (overbooking yok); koltuk, uçuşun koltuk düzeninde bulunmalıdır.
+- **BR-3:** Rezervasyon yalnızca `now < kalkış − 1 saat` iken ve uçuş `SCHEDULED` iken yapılabilir. Tam `kalkış − 1 saat` anında satış kapalıdır.
+- **BR-4:** Yolcu rezervasyonunu yalnızca `now ≤ kalkış − 24 saat` iken iptal edebilir (sınır dahil). İptal edilen koltuk yeniden satışa açılır.
+- **BR-5:** Aynı uçuşta aynı e-posta (küçük harfe normalize) ile birden fazla aktif rezervasyon olamaz.
+- **BR-6:** Yolcu yalnızca PNR + soyadı eşleşen rezervasyonu görür ve iptal eder. Uçuş tanımlama, uçuş iptali ve yolcu listesi yalnızca Operasyon'a açıktır.
+- **BR-7:** Operasyon bir uçuşu iptal ettiğinde uçuş `CANCELLED` olur ve uçuşun tüm aktif rezervasyonları **aynı transaction'da** `CANCELLED_BY_AIRLINE` olur. BR-4'ün 24 saat penceresi havayolu iptaline uygulanmaz. İptal edilmiş uçuşa rezervasyon yapılamaz.
+- **BR-8:** Soyadı karşılaştırması baştaki/sondaki boşluk kırpılıp `tr-TR` locale ile büyük harfe çevrilerek yapılır: `Işık` = `IŞIK` = `ışık`, ama `Işık` ≠ `Isik` (ASCII katlama yok).
 
 ## Key domain invariants
-- Kalan bakiye hiçbir zaman negatif olamaz.
-- Durum geçişleri yalnızca `PENDING → APPROVED | REJECTED | CANCELLED` ve `APPROVED → CANCELLED` şeklindedir; `REJECTED` ve `CANCELLED` son durumlardır.
-- Onay ve bakiye düşümü tek bir transaction içinde gerçekleşir; biri olup diğeri olmaz.
-- Karar (onay/red) her zaman kararı vereni (`decidedBy`) ve zamanını (`decidedAt`) kaydeder.
+- Bir `(uçuş, koltuk)` çifti için en fazla bir `CONFIRMED` satır vardır — domain kontrolüne ek olarak veritabanında kısmi benzersiz index ile de zorlanır.
+- Durum geçişleri yalnızca `CONFIRMED → CANCELLED | CANCELLED_BY_AIRLINE` ve uçuş için `SCHEDULED → CANCELLED` şeklindedir; iptal durumları son durumdur.
+- Uçuş iptali ve rezervasyonların iptali tek transaction'dır; biri olup diğeri olmaz.
+- Varış zamanı kalkış zamanından sonradır.
+- Her iptal kaydı zamanını (`cancelledAt`) tutar.
 
 ## Sensitive areas
-- **Bakiye hesabı** (BR-1, BR-2, BR-3, BR-7): yanlış hesap, çalışana fazla/eksik izin demektir.
-- **Onay yetkisi** (BR-6 ve `docs/security.md` AuthZ): yanlış yetki, başkasının talebini karara bağlamak demektir.
+- **Koltuk tahsisi** (BR-1, BR-2, BR-5, BR-7): yanlış tahsis, aynı koltuğun iki yolcuya satılması veya kapasite aşımı demektir.
+- **Zaman pencereleri** (BR-3, BR-4): sınır hatası, kapanmış satışın açık kalması ya da yolcunun haklı iptalinin reddedilmesi demektir.
+- **Yetki** (BR-6, BR-8 ve `docs/security.md` AuthN/AuthZ): yanlış yetki, başkasının rezervasyonunu görmek/iptal etmek veya ops uçlarına anahtarsız erişim demektir.
 
 Bu alanlara dokunan spec, Constraints bölümünde `Sensitive area: <ad>` yazar; lite modda da clarify
 gate'i sorulur, her fix turu yeniden review edilir ve her kriter bir bilinçli kırma ile kırmızıya

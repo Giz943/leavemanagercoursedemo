@@ -1,6 +1,6 @@
 # Testing
 
-> Bootstrap'ta karara bağlandı (2026-11-07). Proje özel bölümler: "Frameworks & layout", "What must be tested"; geri kalanı ANEW sözleşmesidir.
+> Bootstrap'ta karara bağlandı (2026-11-07; domain 2026-11-11'de Uçuş Rezervasyon'a değişti). Proje özel bölümler: "Frameworks & layout", "What must be tested"; geri kalanı ANEW sözleşmesidir.
 
 ## The contract
 - Every acceptance criterion maps to at least one test (criterion ↔ test map lives in the plan).
@@ -10,13 +10,17 @@
 ## Frameworks & layout
 | Katman | Neyi kanıtlar | Araç | Konum / ad | Profil |
 |---|---|---|---|---|
-| Domain birim | İş günü, bakiye, çakışma, durum geçişleri, yetki (tüm hassas kurallar) | Vitest | `apps/api/src/domain/**/*.test.ts` | `[fast]` |
-| Bileşen (UI) | Form doğrulama, hata kodu → Türkçe mesaj, durum rozetleri, onay/red butonlarının görünürlüğü, boş/yükleniyor/hata durumları | Vitest + React Testing Library (jsdom) | `apps/web/src/**/*.test.tsx` | `[fast]` |
-| API entegrasyon | Route → use-case → gerçek SQLite; HTTP kodları, kalıcılık, transaction | Vitest + Hono `app.request()`, test başına in-memory SQLite (`:memory:`) | `apps/api/src/**/*.int.test.ts` | full |
-| e2e | — (ilk sürümde yok) | — | — | — |
+| Domain birim | Koltuk tahsisi, satış/iptal pencereleri (sınır değerleri), durum geçişleri, soyadı eşleştirme, PNR biçimi (tüm hassas kurallar) | Vitest | `apps/api/src/domain/**/*.test.ts` | `[fast]` |
+| Bileşen (UI) | Arama ve yolcu formu doğrulama, koltuk haritası (dolu/boş/seçili), hata kodu → Türkçe mesaj, İstanbul saatiyle gösterim, boş/yükleniyor/hata durumları | Vitest + React Testing Library (jsdom) | `apps/web/src/**/*.test.tsx` | `[fast]` |
+| API entegrasyon | Route → use-case → gerçek SQLite; HTTP kodları, kalıcılık, transaction, kısmi benzersiz index, ops anahtarı, rate limit | Vitest + Hono `app.request()`, test başına in-memory SQLite (`:memory:`) | `apps/api/src/**/*.int.test.ts` | full |
+| e2e | Tek kritik yolculuk (aşağıda) | Playwright, yalnızca Chromium, `--workers=1` | `e2e/**/*.e2e.ts` | full |
 
 - **Hızlı/tam ayrımı seçiciyle yapılır** (Two speeds kural 4): fast adımı `*.int.test.ts` dosyalarını hariç tutar, full adımı yalnızca onları çalıştırır — dosya listesiyle değil, ad desenine göre (`--exclude` / filtre), böylece yeni bir test her zaman iki profilden birinde çalışır.
-- **Determinizm (bu stack'te nasıl):** "bugün" domain'e ve use-case'lere parametre/saat servisi olarak verilir, testlerde sabit bir tarihtir; `Date.now()` doğrudan çağrılmaz. Vitest ortamında `TZ=UTC` ve locale `tr-TR` sabittir. ID üretici enjekte edilir, testlerde deterministiktir. Arayüzde animasyon/geçiş yoktur; eklenirse test ortamında kapatılır (`prefers-reduced-motion` + test bayrağı). Dış servis yoktur.
+- **Determinizm (bu stack'te nasıl):** saat servisi bir zaman anı (`now`) döner; domain ve use-case'ler
+  onu parametre/servis olarak alır, testlerde sabittir; `Date.now()` doğrudan çağrılmaz. PNR ve ID
+  üreticileri enjekte edilir, testlerde deterministiktir. Vitest ortamında `TZ=UTC` ve locale `tr-TR`
+  sabittir; gösterim testleri `Europe/Istanbul` saatini açıkça doğrular. Arayüzde animasyon/geçiş
+  yoktur; eklenirse test ortamında kapatılır (`prefers-reduced-motion` + test bayrağı). Dış servis yoktur.
 - **İzolasyon:** her entegrasyon testi kendi in-memory veritabanını açar, migration uygular ve kapatır; diske dosya veya bir sonraki çalıştırmaya veri kalmaz (Resource hygiene kural 5).
 - **Coverage:** `apps/api/src/domain` için %90 satır + dal eşiği check'te zorlanır; diğer katmanlarda eşik yok.
 
@@ -24,12 +28,35 @@
 (araç walking skeleton'da seçilir) repo dışında geçici dizinde yakalar; repoya girmez.
 
 ## What must be tested
-- Her iş kuralı (`docs/domain.md` BR-1…BR-8) domain birim testleriyle; hassas kuralların her biri için **en az bir pozitif ve bir negatif** test.
-- Her yetki kuralı (`docs/security.md` AuthZ) için en az bir negatif API entegrasyon testi (403).
-- Her hata kodunun HTTP eşlemesi (400/401/403/404/409) entegrasyon testiyle.
-- Onay + bakiye düşümünün atomikliği (biri başarısızsa hiçbiri kalıcı olmaz) entegrasyon testiyle.
+- Her iş kuralı (`docs/domain.md` BR-1…BR-8) domain birim testleriyle; hassas kuralların her biri için
+  **en az bir pozitif ve bir negatif** test.
+- **Sınır testleri**, sabit saatle: satış `kalkış − 1s − 1ms` açık / `kalkış − 1s` kapalı (BR-3);
+  iptal `kalkış − 24s` açık / `kalkış − 24s + 1ms` kapalı (BR-4).
+- **Çift satış veritabanında da engellenir:** domain kontrolünü atlayıp aynı `(uçuş, koltuk)` için ikinci
+  `CONFIRMED` satırı doğrudan ekleyen entegrasyon testi kısıt hatası bekler; aynı koltuk iptal
+  edildikten sonra yeniden satılabilir (kısmi index). better-sqlite3 senkron olduğu için gerçek bir
+  yarış testi yazılamaz; son savunma hattı olan index doğrudan kanıtlanır.
+- **Uçuş iptali atomikliği** (BR-7): uçuş ve rezervasyon güncellemelerinden biri başarısızsa hiçbiri
+  kalıcı olmaz — entegrasyon testiyle.
+- **Yetki:** ops anahtarı yok/yanlış → 401 (iki durumda aynı gövde); yanlış PNR ile doğru PNR + yanlış
+  soyadı → birebir aynı 404 gövdesi; 6. başarısız denemede 429, pencere geçince (sahte saat) sayaç sıfırlanır.
+- **Soyadı (BR-8):** `Işık` / `IŞIK` / `ışık` eşleşir, `Isik` eşleşmez; baştaki/sondaki boşluk yok sayılır.
+- Her hata kodunun HTTP eşlemesi (400/401/404/409/429) entegrasyon testiyle.
 - Mimari yasak bağımlılıklar ESLint ile (`docs/architecture.md`).
-- UI kabul kriterleri bileşen testleriyle; e2e yok. Bir kritik yolculuk yalnızca tarayıcıda kanıtlanabiliyorsa e2e bir spec ile, bütçesiyle birlikte eklenir.
+- UI kabul kriterleri bileşen testleriyle.
+
+**e2e (bütçeli, aşağıdaki Test layers kural 2):**
+- **Yolculuk (1):** uçuş ara → koltuk haritasında boş koltuk seç → yolcu bilgilerini gir → PNR ekranı →
+  PNR + soyadı ile rezervasyonu bul.
+- **Bütçe:** 1 yolculuk, toplam < 60 sn. Bütçe doluysa yeni test bir katman aşağı iner.
+- **Araç:** Playwright, yalnızca Chromium, `--workers=1` (resource hygiene); yalnızca full profil.
+  `check.conf`'ta `requires e2e: npx playwright --version`; tarayıcı kurulumu `npx playwright install chromium`.
+- **Uygulama yaşam döngüsü:** Playwright `webServer` API'yi ve `vite preview`'ı başlatır ve test bitince
+  kendisi kapatır; `reuseExistingServer: false` (açık bir dev sunucusuna bağlanmaz); sabit test portları.
+- **Determinizm:** API test modunda `FIXED_NOW` ortam değişkeniyle sabit saatte çalışır; veritabanı her
+  koşuda geçici dizinde sıfırdan seed edilir ve koşu sonunda silinir; tarayıcıda `locale: 'tr-TR'`,
+  `timezoneId: 'Europe/Istanbul'`, `reducedMotion: 'reduce'` ve sayfa saati aynı ana sabitlenir.
+- **Ne zaman kurulur:** ilk rezervasyon spec'iyle (walking skeleton'a eklenmez).
 
 ## Test layers
 1. **The cheapest test that proves the criterion.** Unit first, then component or integration

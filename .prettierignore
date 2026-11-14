@@ -1,0 +1,11 @@
+node_modules
+dist
+coverage
+data
+package-lock.json
+*.md
+.github
+.claude
+.anew-dev
+adapters
+scripts

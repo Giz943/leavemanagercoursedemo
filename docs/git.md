@@ -11,7 +11,7 @@
   any branch.
 
 ## Commits
-- Commit mesajları **İngilizce** (tip, scope ve açıklama), örn. `feat(leave): deduct balance on approval [plan 0002/3]`.
+- Commit mesajları **İngilizce** (tip, scope ve açıklama), örn. `feat(booking): reserve seat with partial unique index [plan 0002/3]`.
 - Conventional Commits, with a plan reference: `feat(catalog): paging endpoint [plan 0001/3]`.
   Review fixes name their fix round instead of the step:
   `fix(catalog): empty page size [plan 0001/fix-2]` — the reviewer counts rounds from these
